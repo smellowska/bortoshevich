@@ -82,24 +82,38 @@ sponsorForm.addEventListener('submit', (e) => {
   const email = document.getElementById('sponsorEmail').value;
   const message = document.getElementById('sponsorMessage').value;
   
-  const fullText = `Привет! Предложение по спонсорству.\nИмя/Компания: ${name}\nEmail для связи: ${email}\nСообщение: ${message}`;
+  const fullText = `Здравствуйте! Меня зовут ${name}.\n\n${message}\n\nМой Email для связи: ${email}\n\nВас интересует наше предложение?`;
   
   const toast = document.createElement('div');
   toast.className = 'toast-node';
   toast.innerHTML = `
-    <div class="toast-content">Перенаправляем в Instagram для отправки сообщения...</div>
+    <div class="toast-content">Текст скопирован! Вставьте его в чат с Никитой.</div>
     <div class="toast-bar"></div>
   `;
   toastContainer.appendChild(toast);
   
-  navigator.clipboard.writeText(fullText).catch(() => {});
-  
-  sponsorForm.reset();
-  
-  const instagramUrl = `https://www.instagram.com/nikitabortoshevich777?igsh=dm5pZGFmZXRqdWVj`;
-  
-  setTimeout(() => {
-    window.open(instagramUrl, '_blank');
-    toast.remove();
-  }, 1200);
+  navigator.clipboard.writeText(fullText).then(() => {
+    proceedToInstagram();
+  }).catch(() => {
+    proceedToInstagram();
+  });
+
+  function proceedToInstagram() {
+    sponsorForm.reset();
+    
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    setTimeout(() => {
+      if (isMobile) {
+        window.location.href = "instagram://user?username=nikitabortoshevich777";
+        
+        setTimeout(() => {
+          window.location.href = "https://www.instagram.com/nikitabortoshevich777/";
+        }, 1500);
+      } else {
+        window.location.href = "https://www.instagram.com/nikitabortoshevich777/";
+      }
+      toast.remove();
+    }, 1000);
+  }
 });
