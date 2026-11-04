@@ -133,3 +133,52 @@ if (sponsorForm) {
     }
   });
 }
+const throttleBtn = document.getElementById('throttleBtn');
+const tachVal = document.getElementById('tachVal');
+const tachProgress = document.getElementById('tachProgress');
+const tachStatus = document.getElementById('tachStatus');
+
+let currentRpm = 0.0;
+let isHolding = false;
+let gameInterval = null;
+
+if (throttleBtn) {
+  const startHolding = (e) => {
+    e.preventDefault();
+    isHolding = true;
+    tachStatus.innerText = "🔥 Максимальный газ! Набираем обороты...";
+    if (gameInterval) clearInterval(gameInterval);
+    
+    gameInterval = setInterval(() => {
+      if (isHolding) {
+        currentRpm = Math.min(14.0, currentRpm + 0.45);
+      } else {
+        currentRpm = Math.max(0.0, currentRpm - 0.7);
+      }
+      updateTachometer();
+    }, 40);
+  };
+
+  const stopHolding = (e) => {
+    e.preventDefault();
+    isHolding = false;
+    if (currentRpm >= 13.0) {
+      tachStatus.innerText = "🏆 Отличная работа! Двигатель на отсечке!";
+    } else {
+      tachStatus.innerText = "Газ сброшен. Попробуй докрутить до максимума!";
+    }
+  };
+
+  throttleBtn.addEventListener('mousedown', startHolding);
+  throttleBtn.addEventListener('mouseup', stopHolding);
+  throttleBtn.addEventListener('mouseleave', stopHolding);
+
+  throttleBtn.addEventListener('touchstart', startHolding, { passive: false });
+  throttleBtn.addEventListener('touchend', stopHolding, { passive: false });
+}
+
+function updateTachometer() {
+  tachVal.innerText = currentRpm.toFixed(1);
+  const percent = (currentRpm / 14.0) * 100;
+  tachProgress.style.width = percent + "%";
+}
